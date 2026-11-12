@@ -52,7 +52,13 @@ Docker tidak diperlukan.
    ```
    Saat diminta nama migrasi, ketik `init`.
 
-5. **Buat user dev.** Di pgAdmin, buka Query Tool untuk `ai_workshop`, lalu jalankan:
+5. **Buat `AUTH_SECRET`.** Isi di `.env` dengan string acak minimal 32 karakter, misalnya hasil dari:
+   ```
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+   ```
+   Lalu buka `http://localhost:3000/login` dan daftar akun.
+
+6. **(Opsional, untuk development) Buat user dev.** Di pgAdmin, buka Query Tool untuk `ai_workshop`, lalu jalankan:
    ```sql
    INSERT INTO users (id, email, "updatedAt")
    VALUES (gen_random_uuid(), 'dev@local.test', now())
@@ -117,7 +123,9 @@ Endpoint cek koneksi: `POST /ai/test` (butuh header `x-dev-user-id`).
 ## Keamanan
 
 - **Jangan commit** `.env`, `.env.local`, atau file apa pun yang berisi password atau key. `.gitignore` sudah mengabaikannya.
-- Autentikasi saat ini **sementara**: header `x-dev-user-id` hanya aktif jika `AUTH_DEV_BYPASS=true` dan `NODE_ENV` bukan `production`. Ganti dengan login sungguhan sebelum deploy.
+- Login memakai email dan password (hash scrypt). Sesi disimpan di cookie HttpOnly yang ditandatangani dengan `AUTH_SECRET`. Ganti `AUTH_SECRET` jika bocor, karena semua sesi akan tidak berlaku.
+- Header `x-dev-user-id` hanya aktif jika `AUTH_DEV_BYPASS=true` dan `NODE_ENV` bukan `production`. Matikan untuk produksi.
+- Belum ada pembatasan percobaan login (rate limit). Tambahkan sebelum dipublikasikan.
 - Output AI dan teks dari user diperlakukan sebagai data. Teks yang mengandung `<` atau `>` ditolak, dan link hanya boleh `http`, `https`, `mailto`, atau anchor internal.
 
 ## Perintah berguna

@@ -28,4 +28,13 @@ export class DesignsController {
   ) {
     return this.designs.applyOp(userId, projectId, artifactId, parseBody(designOpSchema, body));
   }
+
+  @Get(":artifactId/versions")
+  versions(
+    @CurrentUser() userId: string,
+    @Param("projectId") projectId: string,
+    @Param("artifactId") artifactId: string,
+  ) {
+    return this.designs.listVersions(userId, projectId, artifactId);
+  }
 }

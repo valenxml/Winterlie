@@ -1,6 +1,7 @@
 import type { AIProvider } from "./provider.js";
 import { AnthropicProvider } from "./anthropic-provider.js";
 import { GeminiProvider } from "./gemini-provider.js";
+import { OpenAICompatibleProvider } from "./openai-compatible-provider.js";
 import { MockProvider } from "./mock-provider.js";
 
 export * from "./provider.js";
@@ -24,6 +25,16 @@ export function createAIProvider(env: NodeJS.ProcessEnv = process.env): AIProvid
     if (!apiKey) throw new Error("AI_DEFAULT_PROVIDER=gemini requires GEMINI_API_KEY");
     const fallbackModels = (env.GEMINI_FALLBACK_MODELS ?? "").split(",").map((m) => m.trim()).filter(Boolean);
     return new GeminiProvider({ apiKey, model: env.GEMINI_MODEL ?? "gemini-3.8-flash", fallbackModels, maxRetries });
+  }
+
+  if (choice === "openai-compatible") {
+    const baseUrl = env.AI_BASE_URL;
+    const apiKey = env.AI_API_KEY;
+    const model = env.AI_MODEL;
+    if (!baseUrl || !apiKey || !model) {
+      throw new Error("AI_DEFAULT_PROVIDER=openai-compatible requires AI_BASE_URL, AI_API_KEY, and AI_MODEL");
+    }
+    return new OpenAICompatibleProvider({ baseUrl, apiKey, model, maxRetries });
   }
 
   return new MockProvider();

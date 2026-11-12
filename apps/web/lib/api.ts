@@ -15,6 +15,7 @@ export class ApiError extends Error {
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
     ...init,
+    credentials: "include", // send the signed session cookie
     headers: {
       "content-type": "application/json",
       "x-dev-user-id": DEV_USER_ID,
@@ -34,4 +35,10 @@ export interface Project {
   name: string;
   description: string | null;
   createdAt: string;
+}
+
+export interface CurrentUserInfo {
+  id: string;
+  email: string;
+  name: string | null;
 }

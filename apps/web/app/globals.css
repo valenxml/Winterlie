@@ -435,3 +435,13 @@ select.plain:focus { outline: 2px solid var(--accent-soft); border-color: var(--
 .icon-btn:disabled { opacity: 0.4; cursor: default; }
 .icon-btn.danger:hover:not(:disabled) { color: var(--danger); border-color: #f1c4c0; }
 .btn-sm { padding: 7px 12px; font-size: 13px; }
+
+/* ---------- Mockup Maker results: cards on top, preview below ---------- */
+.dir-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.dir-grid .option { height: 100%; }
+@media (max-width: 860px) { .dir-grid { grid-template-columns: 1fr; } }
+
+/* ---------- Text source badge on direction cards ---------- */
+.src-badge { display: inline-block; margin-left: 8px; font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; }
+.src-badge.ai { background: #e7f6ef; color: var(--ok); }
+.src-badge.template { background: var(--bg); color: var(--muted); }

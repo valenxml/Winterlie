@@ -6,6 +6,8 @@ import { AI_PROVIDER, createAIProvider } from "./ai/nest.js";
 import { DesignsController } from "./designs/designs.controller.js";
 import { DesignsService } from "./designs/designs.service.js";
 import { AiController } from "./ai/ai.controller.js";
+import { AuthController } from "./auth/auth.controller.js";
+import { AuthService } from "./auth/auth.service.js";
 
 @Controller("health")
 class HealthController {
@@ -16,11 +18,12 @@ class HealthController {
 }
 
 @Module({
-  controllers: [HealthController, ProjectsController, DesignsController, AiController],
+  controllers: [HealthController, ProjectsController, DesignsController, AiController, AuthController],
   providers: [
     PrismaService,
     ProjectsService,
     DesignsService,
+    AuthService,
     { provide: AI_PROVIDER, useFactory: () => createAIProvider() },
   ],
 })

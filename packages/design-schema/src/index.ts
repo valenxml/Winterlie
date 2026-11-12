@@ -5,3 +5,4 @@ export * from "./design.js";
 export * from "./operations.js";
 export * from "./templates.js";
 export * from "./apply-op.js";
+export * from "./copy.js";

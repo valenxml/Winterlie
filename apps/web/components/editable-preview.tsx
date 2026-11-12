@@ -19,7 +19,7 @@ export function EditablePreview() {
 
   const brandRef = useRef<HTMLInputElement>(null);
   const titleRef = useRef<HTMLInputElement>(null);
-  const descRef = useRef<HTMLTextAreaElement>(null);
+  const descRef = useRef<HTMLInputElement>(null);
   const ctaRef = useRef<HTMLInputElement>(null);
 
   const edit = (patch: Partial<typeof s>, key?: string) => dispatch({ type: "edit", patch, key });

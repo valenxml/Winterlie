@@ -7,7 +7,14 @@ import { api, ApiError, type Project } from "@/lib/api";
 import { SpecPreview } from "@/components/spec-preview";
 import { SectionEditor, type DesignOpPayload } from "@/components/section-editor";
 
-interface Direction { id: string; version: number; direction: string; spec: DesignSpec }
+interface Direction {
+  id: string;
+  version: number;
+  direction: string;
+  spec: DesignSpec;
+  /** "ai" or "template". Only known for the result of generate; edits keep the original value. */
+  source?: "ai" | "template";
+}
 
 const LABEL: Record<string, string> = {
   "editorial-warm": "Editorial hangat",
@@ -28,6 +35,7 @@ export function MockupMakerView() {
   const [selected, setSelected] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [versions, setVersions] = useState<{ id: string; version: number; createdAt: string; spec: DesignSpec }[]>([]);
 
   useEffect(() => {
     api<Project[]>("/projects")
@@ -65,6 +73,27 @@ export function MockupMakerView() {
     }
   }
 
+  /** Loads the version history for the current direction when the editor opens. */
+  async function openEditor() {
+    const next = !editing;
+    setEditing(next);
+    if (!next || !current) return;
+    try {
+      setVersions(await api(`/projects/${projectId}/designs/${current.id}/versions`));
+    } catch (err) {
+      setVersions([]);
+      setError(err instanceof ApiError ? err.message : "Gagal memuat riwayat versi");
+    }
+  }
+
+  /** Makes an earlier version the current one. The next edit starts from it. */
+  function useVersion(v: { id: string; version: number; spec: DesignSpec }) {
+    setDirections((prev) =>
+      prev.map((d) => (d.direction === v.spec.direction ? { ...d, id: v.id, version: v.version, spec: v.spec } : d)),
+    );
+    setSelected(v.id);
+  }
+
   /** Sends one edit to the API. The server validates it and returns the new version. */
   async function applyOp(op: DesignOpPayload) {
     if (!current) return;
@@ -75,8 +104,10 @@ export function MockupMakerView() {
         method: "POST",
         body: JSON.stringify(op),
       });
-      // One card per direction: replace it with the newest version.
-      setDirections((prev) => prev.map((d) => (d.direction === next.direction ? next : d)));
+      // One card per direction: replace it with the newest version, keeping its source label.
+      setDirections((prev) =>
+        prev.map((d) => (d.direction === next.direction ? { ...next, source: d.source } : d)),
+      );
       setSelected(next.id);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Gagal menyimpan perubahan");
@@ -131,8 +162,8 @@ export function MockupMakerView() {
       {error && <p className="error">{error}</p>}
 
       {directions.length > 0 && current && (
-        <div className="two-col" style={{ marginTop: 16 }}>
-          <div className="stack">
+        <div className="stack" style={{ marginTop: 16, gap: 16 }}>
+          <div className="dir-grid">
             {directions.map((d) => {
               const c = d.spec.tokens.colors;
               const active = d.id === current.id;
@@ -145,17 +176,22 @@ export function MockupMakerView() {
                     ))}
                     <span className="muted" style={{ fontSize: 12 }}>{d.spec.tokens.typography.heading} · {d.spec.tokens.typography.body}</span>
                   </span>
-                  <span className="muted" style={{ fontSize: 12 }}>{d.spec.sections.length} section · versi {d.version}</span>
+                  <span className="muted" style={{ fontSize: 12 }}>
+                    {d.spec.sections.length} section · versi {d.version}
+                    {d.source && (
+                      <span className={`src-badge ${d.source}`}>{d.source === "ai" ? "Teks AI" : "Teks template"}</span>
+                    )}
+                  </span>
                 </button>
               );
             })}
           </div>
-          <div className="card">
+          <div className="card" style={{ marginBottom: 0 }}>
             <div className="row" style={{ justifyContent: "space-between", marginBottom: 12 }}>
               <h2 style={{ margin: 0 }}>{LABEL[current.direction] ?? current.direction}</h2>
               <div className="row" style={{ gap: 8 }}>
                 <span className="muted" style={{ fontSize: 12 }}>Versi {current.version}</span>
-                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEditing((v) => !v)}>
+                <button type="button" className="btn btn-ghost btn-sm" onClick={openEditor}>
                   {editing ? "Tutup editor" : "Edit section"}
                 </button>
               </div>
@@ -163,6 +199,33 @@ export function MockupMakerView() {
             {editing && (
               <div className="card" style={{ background: "var(--bg)", boxShadow: "none" }}>
                 <SectionEditor spec={current.spec} busy={saving} onOp={applyOp} />
+                {versions.length > 0 && (
+                  <div style={{ marginTop: 16 }}>
+                    <div className="muted" style={{ fontSize: 12.5, marginBottom: 8 }}>Riwayat versi</div>
+                    <div className="stack" style={{ gap: 6 }}>
+                      {versions.map((v) => {
+                        const isCurrent = v.id === current.id;
+                        return (
+                          <div key={v.id} className="row" style={{ justifyContent: "space-between", fontSize: 13 }}>
+                            <span>
+                              Versi {v.version}
+                              <span className="muted" style={{ marginLeft: 8 }}>
+                                {new Date(v.createdAt).toLocaleString("id-ID", { dateStyle: "short", timeStyle: "short" })}
+                              </span>
+                            </span>
+                            {isCurrent ? (
+                              <span className="muted" style={{ fontSize: 12 }}>Sedang dipakai</span>
+                            ) : (
+                              <button type="button" className="btn btn-ghost btn-sm" disabled={saving} onClick={() => useVersion(v)}>
+                                Pakai versi ini
+                              </button>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
             <SpecPreview spec={current.spec} />

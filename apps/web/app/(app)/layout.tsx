@@ -1,5 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { AuthGate } from "@/components/auth-gate";
+import { LogoutButton } from "@/components/logout-button";
 
 const MAIN = [
   { href: "/dashboard", label: "Home" },
@@ -42,9 +44,12 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           <span>Pricing</span>
           <span>About</span>
           <span className="spacer" />
+          <LogoutButton />
           <span className="avatar" />
         </div>
-        <div className="content">{children}</div>
+        <div className="content">
+          <AuthGate>{children}</AuthGate>
+        </div>
       </div>
     </div>
   );
