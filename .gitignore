@@ -1,0 +1,18 @@
+# Dependencies and build output
+node_modules
+dist
+.next
+out
+*.tsbuildinfo
+
+# Secrets: never commit. Matches .env at any depth, plus .env.local variants.
+.env
+.env.*
+!.env.example
+*.local
+
+# Editor and OS files
+.vscode
+.idea
+.DS_Store
+Thumbs.db

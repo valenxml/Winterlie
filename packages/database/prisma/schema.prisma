@@ -1,0 +1,154 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum WorkspaceType {
+  PERSONAL
+  TEAM
+}
+enum MemberRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+enum AiRunStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  FAILED
+  TIMED_OUT
+  CANCELED
+}
+enum CreditTxType {
+  GRANT
+  PURCHASE
+  RESERVE
+  DEDUCT
+  REFUND
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  email        String   @unique
+  name         String?
+  passwordHash String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships        WorkspaceMember[]
+  aiRuns             AiRun[]
+  creditTransactions CreditTransaction[]
+
+  @@map("users")
+}
+
+model Workspace {
+  id        String        @id @default(uuid()) @db.Uuid
+  name      String
+  type      WorkspaceType @default(PERSONAL)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  members  WorkspaceMember[]
+  projects Project[]
+
+  @@map("workspaces")
+}
+
+model WorkspaceMember {
+  id          String     @id @default(uuid()) @db.Uuid
+  workspaceId String     @db.Uuid
+  userId      String     @db.Uuid
+  role        MemberRole @default(MEMBER)
+  createdAt   DateTime   @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@map("workspace_members")
+}
+
+model Project {
+  id          String    @id @default(uuid()) @db.Uuid
+  workspaceId String    @db.Uuid
+  name        String
+  description String?
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  workspace Workspace    @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  aiRuns    AiRun[]
+  artifacts AiArtifact[]
+
+  @@index([workspaceId, createdAt])
+  @@map("projects")
+}
+
+model AiRun {
+  id                 String      @id @default(uuid()) @db.Uuid
+  userId             String      @db.Uuid
+  projectId          String?     @db.Uuid
+  tool               String
+  provider           String
+  model              String
+  status             AiRunStatus @default(QUEUED)
+  inputTokens        Int         @default(0)
+  outputTokens       Int         @default(0)
+  estimatedCostMicros Int @default(0) // micro-USD
+  errorMessage       String?
+  input              Json?
+  startedAt          DateTime?
+  finishedAt         DateTime?
+  createdAt          DateTime    @default(now())
+
+  user      User         @relation(fields: [userId], references: [id])
+  project   Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  artifacts AiArtifact[]
+
+  @@index([userId, createdAt])
+  @@index([projectId])
+  @@index([status])
+  @@map("ai_runs")
+}
+
+model AiArtifact {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @db.Uuid
+  aiRunId   String?  @db.Uuid
+  kind      String
+  version   Int      @default(1)
+  content   Json
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  aiRun   AiRun?  @relation(fields: [aiRunId], references: [id], onDelete: SetNull)
+
+  @@unique([projectId, kind, version])
+  @@index([aiRunId])
+  @@map("ai_artifacts")
+}
+
+/// Append-only. Never UPDATE or DELETE rows; corrections are new rows.
+model CreditTransaction {
+  id             String       @id @default(uuid()) @db.Uuid
+  userId         String       @db.Uuid
+  type           CreditTxType
+  amount         Int // signed; grants/refunds positive, deductions negative
+  aiRunId        String?      @db.Uuid
+  idempotencyKey String       @unique
+  createdAt      DateTime     @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+  @@map("credit_transactions")
+}
