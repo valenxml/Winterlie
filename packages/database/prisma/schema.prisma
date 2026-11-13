@@ -3,8 +3,11 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  // Runtime queries. Use the pooled connection string in production (Neon, Supabase pooler).
+  url       = env("DATABASE_URL")
+  // Migrations and introspection need a direct connection, not a pooler.
+  directUrl = env("DIRECT_URL")
 }
 
 enum WorkspaceType {
@@ -152,3 +155,22 @@ model CreditTransaction {
   @@index([userId, createdAt])
   @@map("credit_transactions")
 }
+
+/// One-time codes for email verification. Only a keyed hash of the code is stored.
+/// pendingName and pendingHash hold the sign-up details until the code is confirmed.
+model EmailOtp {
+  id          String    @id @default(uuid()) @db.Uuid
+  email       String
+  purpose     String
+  codeHash    String
+  pendingName String?
+  pendingHash String?
+  attempts    Int       @default(0)
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([email, purpose, createdAt])
+  @@map("email_otps")
+}
+

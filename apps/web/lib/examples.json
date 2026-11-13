@@ -1,0 +1,836 @@
+[
+  {
+    "slug": "toko-online",
+    "title": "Toko online",
+    "brief": "Jual kopi bubuk dan alat seduh online dengan pengiriman cepat.",
+    "spec": {
+      "schemaVersion": 1,
+      "name": "Kopi Nusantara",
+      "direction": "ai-1",
+      "category": "landing",
+      "tokens": {
+        "colors": {
+          "primary": "#1F2937",
+          "accent": "#B45309",
+          "background": "#F8F5EE",
+          "surface": "#FFFFFF",
+          "text": "#25211E",
+          "muted": "#6B625A",
+          "border": "#E2D7C8"
+        },
+        "typography": {
+          "heading": "sans-grotesk",
+          "body": "sans-humanist",
+          "scale": "balanced"
+        },
+        "spacing": {
+          "section": "airy",
+          "containerWidth": 1200
+        },
+        "radius": "sm",
+        "shadow": "soft"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "type": "navbar",
+          "content": {
+            "brand": "Kopi Nusantara",
+            "links": [
+              {
+                "label": "Tentang",
+                "href": "#about"
+              },
+              {
+                "label": "Layanan",
+                "href": "#features"
+              },
+              {
+                "label": "Kontak",
+                "href": "#contact"
+              }
+            ],
+            "cta": {
+              "label": "Hubungi kami",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "style": "bordered",
+            "sticky": true
+          }
+        },
+        {
+          "id": "hero",
+          "type": "hero-split",
+          "content": {
+            "badge": "Toko online",
+            "title": "Kopi Nusantara",
+            "accent": "Nusantara",
+            "description": "Jual kopi bubuk dan alat seduh online dengan pengiriman cepat.",
+            "primaryCta": {
+              "label": "Belanja sekarang",
+              "href": "#contact"
+            },
+            "secondaryCta": {
+              "label": "Lihat detail",
+              "href": "#features"
+            },
+            "image": {
+              "kind": "placeholder",
+              "label": "Foto Kopi Nusantara",
+              "aspect": "4:3"
+            }
+          },
+          "settings": {
+            "imagePosition": "right",
+            "emphasis": "text",
+            "visual": "cards"
+          }
+        },
+        {
+          "id": "product-grid",
+          "type": "product-grid",
+          "content": {
+            "heading": "Produk pilihan",
+            "items": [
+              {
+                "title": "Produk unggulan",
+                "price": "Rp 150.000",
+                "image": {
+                  "kind": "placeholder",
+                  "label": "Gambar",
+                  "aspect": "1:1"
+                }
+              },
+              {
+                "title": "Pilihan terlaris",
+                "price": "Rp 220.000",
+                "image": {
+                  "kind": "placeholder",
+                  "label": "Gambar",
+                  "aspect": "1:1"
+                }
+              },
+              {
+                "title": "Edisi terbatas",
+                "price": "Rp 275.000",
+                "image": {
+                  "kind": "placeholder",
+                  "label": "Gambar",
+                  "aspect": "1:1"
+                }
+              }
+            ]
+          },
+          "settings": {
+            "columns": 3
+          }
+        },
+        {
+          "id": "testimonials",
+          "type": "testimonials",
+          "content": {
+            "heading": "Kata mereka",
+            "items": [
+              {
+                "quote": "Pesanan sampai dengan kondisi baik dan sesuai deskripsi.",
+                "name": "Rina",
+                "role": "Pembeli"
+              },
+              {
+                "quote": "Prosesnya mudah dan admin responsif.",
+                "name": "Dimas",
+                "role": "Pelanggan tetap"
+              }
+            ]
+          },
+          "settings": {
+            "layout": "columns"
+          }
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "content": {
+            "heading": "Pertanyaan umum",
+            "items": [
+              {
+                "question": "Bagaimana cara memesan?",
+                "answer": "Pilih produk, masukkan ke keranjang, lalu selesaikan pembayaran."
+              },
+              {
+                "question": "Berapa lama pengiriman?",
+                "answer": "Pengiriman tergantung wilayah, biasanya dikonfirmasi saat checkout."
+              }
+            ]
+          },
+          "settings": {
+            "layout": "accordion"
+          }
+        },
+        {
+          "id": "cta-banner",
+          "type": "cta-banner",
+          "content": {
+            "title": "Temukan produk yang Anda cari",
+            "description": "Mulai belanja dan nikmati penawaran yang tersedia hari ini.",
+            "cta": {
+              "label": "Belanja sekarang",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "tone": "inverted"
+          }
+        },
+        {
+          "id": "footer",
+          "type": "footer",
+          "content": {
+            "brand": "Kopi Nusantara",
+            "tagline": "Dibuat dengan Winterlie",
+            "columns": [
+              {
+                "title": "Halaman",
+                "links": [
+                  {
+                    "label": "Tentang",
+                    "href": "#about"
+                  },
+                  {
+                    "label": "Kontak",
+                    "href": "#contact"
+                  }
+                ]
+              }
+            ],
+            "legal": "© 2026 Kopi Nusantara"
+          },
+          "settings": {
+            "layout": "columns"
+          }
+        }
+      ]
+    },
+    "type": "ecommerce"
+  },
+  {
+    "slug": "landing-game",
+    "title": "Landing game",
+    "brief": "Website game catur online dengan turnamen dan peringkat pemain.",
+    "spec": {
+      "schemaVersion": 1,
+      "name": "Catur Arena",
+      "direction": "ai-1",
+      "category": "landing",
+      "tokens": {
+        "colors": {
+          "primary": "#1F2937",
+          "accent": "#B45309",
+          "background": "#F8F5EE",
+          "surface": "#FFFFFF",
+          "text": "#25211E",
+          "muted": "#6B625A",
+          "border": "#E2D7C8"
+        },
+        "typography": {
+          "heading": "sans-grotesk",
+          "body": "sans-humanist",
+          "scale": "balanced"
+        },
+        "spacing": {
+          "section": "airy",
+          "containerWidth": 1200
+        },
+        "radius": "sm",
+        "shadow": "soft"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "type": "navbar",
+          "content": {
+            "brand": "Catur Arena",
+            "links": [
+              {
+                "label": "Tentang",
+                "href": "#about"
+              },
+              {
+                "label": "Layanan",
+                "href": "#features"
+              },
+              {
+                "label": "Kontak",
+                "href": "#contact"
+              }
+            ],
+            "cta": {
+              "label": "Hubungi kami",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "style": "bordered",
+            "sticky": true
+          }
+        },
+        {
+          "id": "hero",
+          "type": "hero-centered",
+          "content": {
+            "badge": "Landing game",
+            "title": "Catur Arena",
+            "accent": "Arena",
+            "description": "Website game catur online dengan turnamen dan peringkat pemain.",
+            "primaryCta": {
+              "label": "Main sekarang",
+              "href": "#contact"
+            },
+            "secondaryCta": {
+              "label": "Lihat detail",
+              "href": "#features"
+            },
+            "image": {
+              "kind": "placeholder",
+              "label": "Visual Catur Arena",
+              "aspect": "4:3"
+            }
+          },
+          "settings": {
+            "showBadge": true,
+            "visual": "pattern"
+          }
+        },
+        {
+          "id": "feature-grid",
+          "type": "feature-grid",
+          "content": {
+            "heading": "Yang bisa Anda lakukan",
+            "intro": "Tiga alasan untuk memilih kami.",
+            "items": [
+              {
+                "title": "Mode cepat",
+                "description": "Partai singkat untuk latihan dan hiburan.",
+                "icon": "heart"
+              },
+              {
+                "title": "Peringkat",
+                "description": "Naik level dari setiap kemenangan.",
+                "icon": "clock"
+              },
+              {
+                "title": "Komunitas",
+                "description": "Bergabung dengan pemain dari berbagai level.",
+                "icon": "chart"
+              }
+            ]
+          },
+          "settings": {
+            "columns": 3,
+            "cardStyle": "plain"
+          }
+        },
+        {
+          "id": "stats-row",
+          "type": "stats-row",
+          "content": {
+            "items": [
+              {
+                "label": "Pemain",
+                "value": "Ribuan"
+              },
+              {
+                "label": "Partai",
+                "value": "Setiap hari"
+              },
+              {
+                "label": "Mode",
+                "value": "Beragam"
+              }
+            ]
+          },
+          "settings": {
+            "layout": "boxed"
+          }
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "content": {
+            "heading": "Pertanyaan umum",
+            "items": [
+              {
+                "question": "Apakah gratis dimainkan?",
+                "answer": "Mode dasar gratis. Fitur tambahan tersedia di paket tertentu."
+              },
+              {
+                "question": "Bagaimana sistem peringkat?",
+                "answer": "Peringkat dihitung dari hasil setiap partai."
+              }
+            ]
+          },
+          "settings": {
+            "layout": "accordion"
+          }
+        },
+        {
+          "id": "cta-banner",
+          "type": "cta-banner",
+          "content": {
+            "title": "Siap menguji kemampuanmu?",
+            "description": "Buat akun dan langsung cari lawan yang sepadan.",
+            "cta": {
+              "label": "Main sekarang",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "tone": "inverted"
+          }
+        },
+        {
+          "id": "footer",
+          "type": "footer",
+          "content": {
+            "brand": "Catur Arena",
+            "tagline": "Dibuat dengan Winterlie",
+            "columns": [
+              {
+                "title": "Halaman",
+                "links": [
+                  {
+                    "label": "Tentang",
+                    "href": "#about"
+                  },
+                  {
+                    "label": "Kontak",
+                    "href": "#contact"
+                  }
+                ]
+              }
+            ],
+            "legal": "© 2026 Catur Arena"
+          },
+          "settings": {
+            "layout": "columns"
+          }
+        }
+      ]
+    },
+    "type": "game"
+  },
+  {
+    "slug": "streaming",
+    "title": "Streaming",
+    "brief": "Layanan streaming film dan serial lokal dengan paket keluarga.",
+    "spec": {
+      "schemaVersion": 1,
+      "name": "Tonton Kita",
+      "direction": "ai-1",
+      "category": "landing",
+      "tokens": {
+        "colors": {
+          "primary": "#1F2937",
+          "accent": "#B45309",
+          "background": "#F8F5EE",
+          "surface": "#FFFFFF",
+          "text": "#25211E",
+          "muted": "#6B625A",
+          "border": "#E2D7C8"
+        },
+        "typography": {
+          "heading": "sans-grotesk",
+          "body": "sans-humanist",
+          "scale": "balanced"
+        },
+        "spacing": {
+          "section": "airy",
+          "containerWidth": 1200
+        },
+        "radius": "sm",
+        "shadow": "soft"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "type": "navbar",
+          "content": {
+            "brand": "Tonton Kita",
+            "links": [
+              {
+                "label": "Tentang",
+                "href": "#about"
+              },
+              {
+                "label": "Layanan",
+                "href": "#features"
+              },
+              {
+                "label": "Kontak",
+                "href": "#contact"
+              }
+            ],
+            "cta": {
+              "label": "Hubungi kami",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "style": "bordered",
+            "sticky": true
+          }
+        },
+        {
+          "id": "hero",
+          "type": "hero-editorial",
+          "content": {
+            "eyebrow": "Tonton Kita",
+            "badge": "Layanan streaming",
+            "title": "Tonton Kita",
+            "accent": "Kita",
+            "description": "Layanan streaming film dan serial lokal dengan paket keluarga.",
+            "primaryCta": {
+              "label": "Mulai menonton",
+              "href": "#contact"
+            },
+            "secondaryCta": {
+              "label": "Lihat detail",
+              "href": "#features"
+            },
+            "image": {
+              "kind": "placeholder",
+              "label": "Gambar utama Tonton Kita",
+              "aspect": "4:3"
+            }
+          },
+          "settings": {
+            "alignment": "left",
+            "imagePosition": "right",
+            "titleScale": "massive",
+            "visual": "device"
+          }
+        },
+        {
+          "id": "feature-alternating",
+          "type": "feature-alternating",
+          "content": {
+            "heading": "Kenapa menonton di sini",
+            "items": [
+              {
+                "title": "Pilihan",
+                "description": "Dirancang sesuai kebutuhan Anda.",
+                "image": {
+                  "kind": "placeholder",
+                  "label": "Brief",
+                  "aspect": "4:3"
+                }
+              },
+              {
+                "title": "Kualitas",
+                "description": "Dikerjakan dengan teliti.",
+                "image": {
+                  "kind": "placeholder",
+                  "label": "Arah desain",
+                  "aspect": "4:3"
+                }
+              }
+            ]
+          },
+          "settings": {
+            "startImageSide": "left"
+          }
+        },
+        {
+          "id": "pricing",
+          "type": "pricing",
+          "content": {
+            "heading": "Pilih paket",
+            "plans": [
+              {
+                "name": "Dasar",
+                "price": "Rp 49.000",
+                "period": "/bulan",
+                "features": [
+                  "Kualitas standar",
+                  "1 perangkat"
+                ],
+                "cta": {
+                  "label": "Pilih",
+                  "href": "#contact"
+                },
+                "highlighted": false
+              },
+              {
+                "name": "Keluarga",
+                "price": "Rp 99.000",
+                "period": "/bulan",
+                "features": [
+                  "Kualitas HD",
+                  "4 perangkat",
+                  "Profil anak"
+                ],
+                "cta": {
+                  "label": "Pilih",
+                  "href": "#contact"
+                },
+                "highlighted": true
+              }
+            ]
+          },
+          "settings": {
+            "emphasis": "highlighted"
+          }
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "content": {
+            "heading": "Pertanyaan umum",
+            "items": [
+              {
+                "question": "Bisa dipakai di banyak perangkat?",
+                "answer": "Bisa, dengan batas perangkat sesuai paket."
+              },
+              {
+                "question": "Bisa berhenti kapan saja?",
+                "answer": "Ya, langganan bisa dihentikan kapan saja."
+              }
+            ]
+          },
+          "settings": {
+            "layout": "accordion"
+          }
+        },
+        {
+          "id": "cta-banner",
+          "type": "cta-banner",
+          "content": {
+            "title": "Mulai tonton hari ini",
+            "description": "Coba gratis dan lanjutkan dari perangkat mana pun.",
+            "cta": {
+              "label": "Mulai menonton",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "tone": "inverted"
+          }
+        },
+        {
+          "id": "footer",
+          "type": "footer",
+          "content": {
+            "brand": "Tonton Kita",
+            "tagline": "Dibuat dengan Winterlie",
+            "columns": [
+              {
+                "title": "Halaman",
+                "links": [
+                  {
+                    "label": "Tentang",
+                    "href": "#about"
+                  },
+                  {
+                    "label": "Kontak",
+                    "href": "#contact"
+                  }
+                ]
+              }
+            ],
+            "legal": "© 2026 Tonton Kita"
+          },
+          "settings": {
+            "layout": "columns"
+          }
+        }
+      ]
+    },
+    "type": "streaming"
+  },
+  {
+    "slug": "landing-page",
+    "title": "Landing page",
+    "brief": "Jasa desain interior untuk rumah tinggal dan kantor kecil.",
+    "spec": {
+      "schemaVersion": 1,
+      "name": "Ruang Asri",
+      "direction": "ai-1",
+      "category": "landing",
+      "tokens": {
+        "colors": {
+          "primary": "#1F2937",
+          "accent": "#B45309",
+          "background": "#F8F5EE",
+          "surface": "#FFFFFF",
+          "text": "#25211E",
+          "muted": "#6B625A",
+          "border": "#E2D7C8"
+        },
+        "typography": {
+          "heading": "sans-grotesk",
+          "body": "sans-humanist",
+          "scale": "balanced"
+        },
+        "spacing": {
+          "section": "airy",
+          "containerWidth": 1200
+        },
+        "radius": "sm",
+        "shadow": "soft"
+      },
+      "sections": [
+        {
+          "id": "nav",
+          "type": "navbar",
+          "content": {
+            "brand": "Ruang Asri",
+            "links": [
+              {
+                "label": "Tentang",
+                "href": "#about"
+              },
+              {
+                "label": "Layanan",
+                "href": "#features"
+              },
+              {
+                "label": "Kontak",
+                "href": "#contact"
+              }
+            ],
+            "cta": {
+              "label": "Hubungi kami",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "style": "bordered",
+            "sticky": true
+          }
+        },
+        {
+          "id": "hero",
+          "type": "hero-split",
+          "content": {
+            "badge": "Landing page",
+            "title": "Ruang Asri",
+            "accent": "Asri",
+            "description": "Jasa desain interior untuk rumah tinggal dan kantor kecil.",
+            "primaryCta": {
+              "label": "Mulai sekarang",
+              "href": "#contact"
+            },
+            "secondaryCta": {
+              "label": "Lihat detail",
+              "href": "#features"
+            },
+            "image": {
+              "kind": "placeholder",
+              "label": "Foto Ruang Asri",
+              "aspect": "4:3"
+            }
+          },
+          "settings": {
+            "imagePosition": "right",
+            "emphasis": "text",
+            "visual": "gradient"
+          }
+        },
+        {
+          "id": "feature-grid",
+          "type": "feature-grid",
+          "content": {
+            "heading": "Yang kami tawarkan",
+            "intro": "Tiga alasan untuk memilih kami.",
+            "items": [
+              {
+                "title": "Dikerjakan dengan teliti",
+                "description": "Setiap detail diperiksa sebelum dikirim.",
+                "icon": "heart"
+              },
+              {
+                "title": "Respons cepat",
+                "description": "Pertanyaan dijawab dengan cepat.",
+                "icon": "clock"
+              },
+              {
+                "title": "Hasil yang jelas",
+                "description": "Setiap langkah punya tujuan yang terukur.",
+                "icon": "chart"
+              }
+            ]
+          },
+          "settings": {
+            "columns": 3,
+            "cardStyle": "plain"
+          }
+        },
+        {
+          "id": "faq",
+          "type": "faq",
+          "content": {
+            "heading": "Pertanyaan umum",
+            "items": [
+              {
+                "question": "Bagaimana cara memulai?",
+                "answer": "Hubungi kami dan ceritakan kebutuhan Anda."
+              },
+              {
+                "question": "Berapa lama prosesnya?",
+                "answer": "Tergantung cakupan, kami kabari di awal."
+              }
+            ]
+          },
+          "settings": {
+            "layout": "accordion"
+          }
+        },
+        {
+          "id": "cta-banner",
+          "type": "cta-banner",
+          "content": {
+            "title": "Siap memulai?",
+            "description": "Ceritakan kebutuhan Anda dan kami bantu wujudkan.",
+            "cta": {
+              "label": "Mulai sekarang",
+              "href": "#contact"
+            }
+          },
+          "settings": {
+            "tone": "inverted"
+          }
+        },
+        {
+          "id": "footer",
+          "type": "footer",
+          "content": {
+            "brand": "Ruang Asri",
+            "tagline": "Dibuat dengan Winterlie",
+            "columns": [
+              {
+                "title": "Halaman",
+                "links": [
+                  {
+                    "label": "Tentang",
+                    "href": "#about"
+                  },
+                  {
+                    "label": "Kontak",
+                    "href": "#contact"
+                  }
+                ]
+              }
+            ],
+            "legal": "© 2026 Ruang Asri"
+          },
+          "settings": {
+            "layout": "columns"
+          }
+        }
+      ]
+    },
+    "type": "landing"
+  }
+]

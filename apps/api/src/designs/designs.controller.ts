@@ -37,4 +37,14 @@ export class DesignsController {
   ) {
     return this.designs.listVersions(userId, projectId, artifactId);
   }
+
+  @Post(":artifactId/sections/:sectionId/regenerate")
+  regenerateSection(
+    @CurrentUser() userId: string,
+    @Param("projectId") projectId: string,
+    @Param("artifactId") artifactId: string,
+    @Param("sectionId") sectionId: string,
+  ) {
+    return this.designs.regenerateSection(userId, projectId, artifactId, sectionId);
+  }
 }

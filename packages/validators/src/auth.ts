@@ -12,3 +12,9 @@ export const loginSchema = z.object({
   password: z.string().min(1).max(128),
 });
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const verifyOtpSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  code: z.string().regex(/^\d{6}$/, "Kode harus 6 digit angka"),
+});
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>;

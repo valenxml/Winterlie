@@ -1,11 +1,19 @@
-import { BadRequestException, Inject, Injectable, Logger, NotFoundException } from "@nestjs/common";
+import {
+  BadRequestException, Inject, Injectable, Logger, NotFoundException, ServiceUnavailableException,
+} from "@nestjs/common";
 import { ZodError } from "zod";
 import type { Prisma } from "@prisma/client";
 import {
-  applyCopy, applyDesignOp, buildCopyPrompt, buildLandingDirections, designSpecSchema, DesignOperationError,
-  parseAiCopy, parseStoredSpec, type AiCopy, type DesignOp, type DesignSpec,
+  applyCopy, applyDesignOp, applySectionCopy, archetypeSpecs, buildComposePrompt, buildCopyPrompt, buildLandingDirections,
+  buildSectionPrompt, composeSpec, designSpecSchema, DesignOperationError, extractJsonObject, isRegeneratable,
+  parseAiCopy, parseComposeReply, parseStoredSpec, sectionCopySchema, type AiCopy, type ComposePlan, type DesignOp,
+  type DesignSpec,
 } from "@workshop/design-schema";
 import { AI_PROVIDER } from "../ai/nest.js";
+import { CreditsService } from "../credits/credits.service.js";
+import { AiUsageService } from "../ai/ai-usage.service.js";
+import { GENERATE_COST, REGENERATE_COST } from "../credits/credits.logic.js";
+import { randomUUID } from "node:crypto";
 import type { AIProvider } from "../ai/provider.js";
 import type { DesignBrief } from "@workshop/validators";
 import { PrismaService } from "../prisma.service.js";
@@ -31,19 +39,33 @@ export class DesignsService {
     private readonly prisma: PrismaService,
     private readonly projects: ProjectsService,
     @Inject(AI_PROVIDER) private readonly ai: AIProvider,
+    private readonly credits: CreditsService,
+    private readonly usage: AiUsageService,
   ) {}
+
+  /** Charges credits, runs the action, and refunds the charge if the action throws. */
+  private async paid<T>(userId: string, cost: number, action: () => Promise<T>): Promise<T> {
+    const runKey = randomUUID();
+    await this.credits.charge(userId, cost, `run:${runKey}`);
+    try {
+      return await action();
+    } catch (err) {
+      await this.credits.refund(userId, cost, `refund:${runKey}`);
+      throw err;
+    }
+  }
 
   /**
    * Asks the model for copy. Returns null on any failure (timeout, busy, bad JSON, schema
    * mismatch), so the caller falls back to template text. Errors never reach the user.
    */
-  private async fetchAiCopy(brief: DesignBrief): Promise<AiCopy | null> {
+  private async fetchAiCopy(userId: string, brief: DesignBrief): Promise<AiCopy | null> {
     try {
       const { system, user } = buildCopyPrompt({
         brand: brief.businessType ?? "",
         description: brief.description,
       });
-      const reply = await this.ai.complete({
+      const reply = await this.usage.complete(userId, "design.copy", {
         system,
         user,
         maxTokens: 1500,
@@ -53,6 +75,48 @@ export class DesignsService {
       return parseAiCopy(reply.text);
     } catch (err) {
       this.log.warn(`AI copy unavailable, using template text: ${(err as Error).message}`);
+      return null;
+    }
+  }
+
+  /** Asks for three structure plans. Returns null on any failure so templates are used instead. */
+  private async fetchPlans(userId: string, brief: DesignBrief): Promise<ComposePlan[] | null> {
+    try {
+      const { system, user } = buildComposePrompt({
+        brand: brief.businessType ?? "",
+        description: brief.description,
+        siteType: brief.siteType,
+      });
+      const reply = await this.usage.complete(userId, "design.plans", {
+        system,
+        user,
+        maxTokens: 3000,
+        timeoutMs: Number(process.env.AI_REQUEST_TIMEOUT_MS ?? 60000),
+        json: true,
+      });
+      return parseComposeReply(reply.text);
+    } catch (err) {
+      this.log.warn(`AI structure unavailable, using template layouts: ${(err as Error).message}`);
+      return null;
+    }
+  }
+
+  private tryArchetype(brief: DesignBrief): DesignSpec[] | null {
+    try {
+      return archetypeSpecs(brief.description, brief.businessType ?? "", brief.siteType).specs;
+    } catch (err) {
+      this.log.warn(`Archetype fallback failed: ${(err as Error).message}`);
+      return null;
+    }
+  }
+
+  private tryCompose(plans: ComposePlan[], brief: DesignBrief): DesignSpec[] | null {
+    try {
+      return plans.map((plan, index) =>
+        composeSpec(plan, { brand: brief.businessType ?? "", description: brief.description, index }),
+      );
+    } catch (err) {
+      this.log.warn(`AI structure rejected by schema, using template layouts: ${(err as Error).message}`);
       return null;
     }
   }
@@ -69,18 +133,43 @@ export class DesignsService {
 
   /** Generates one direction per archetype and stores each as a new version. */
   async generate(userId: string, projectId: string, brief: DesignBrief): Promise<SavedDirection[]> {
+    await this.projects.get(userId, projectId); // check access before any credit is spent
+    return this.paid(userId, GENERATE_COST, () => this.generateInner(userId, projectId, brief));
+  }
+
+  private async generateInner(userId: string, projectId: string, brief: DesignBrief): Promise<SavedDirection[]> {
     await this.projects.get(userId, projectId); // 404 if the user cannot access the project
 
     if (brief.category !== "landing") {
       throw new BadRequestException("Kategori dashboard belum tersedia");
     }
 
-    const base = buildLandingDirections({
-      brand: brief.businessType ?? "",
-      description: brief.description,
-    });
-    const copy = await this.fetchAiCopy(brief);
-    const { specs, source } = this.withCopy(base, copy);
+    let specs: DesignSpec[];
+    let source: "ai" | "template";
+
+    const plans = await this.fetchPlans(userId, brief);
+    const composed = plans ? this.tryCompose(plans, brief) : null;
+
+    if (composed) {
+      specs = composed;
+      source = "ai";
+    } else {
+      // Fallback 1: archetype for the brief's kind of site (shop, game, streaming, or landing).
+      // The structure matches the brief even without AI.
+      const fromArchetype = this.tryArchetype(brief);
+      if (fromArchetype) {
+        specs = fromArchetype;
+        source = "template";
+      } else {
+        // Fallback 2: landing templates with AI copy, or plain template copy.
+        const base = buildLandingDirections({
+          brand: brief.businessType ?? "",
+          description: brief.description,
+        });
+        const copy = await this.fetchAiCopy(userId, brief);
+        ({ specs, source } = this.withCopy(base, copy));
+      }
+    }
 
     const saved: SavedDirection[] = [];
     for (const raw of specs) {
@@ -173,5 +262,81 @@ export class DesignsService {
       createdAt: r.createdAt,
       spec: r.content,
     }));
+  }
+
+  /**
+   * Rewrites the text of one section with the model and saves the result as a new version.
+   * Other sections are unchanged. If the model fails or its output is invalid, nothing is
+   * saved and the current version stays in use.
+   */
+  async regenerateSection(userId: string, projectId: string, artifactId: string, sectionId: string) {
+    await this.projects.get(userId, projectId);
+    return this.paid(userId, REGENERATE_COST, () => this.regenerateInner(userId, projectId, artifactId, sectionId));
+  }
+
+  private async regenerateInner(userId: string, projectId: string, artifactId: string, sectionId: string) {
+    await this.projects.get(userId, projectId);
+
+    const current = await this.prisma.aiArtifact.findFirst({
+      where: { id: artifactId, projectId, kind: { startsWith: KIND_PREFIX } },
+    });
+    if (!current) throw new NotFoundException("Design version not found");
+
+    const spec = parseStoredSpec(current.content);
+    const section = spec.sections.find((s) => s.id === sectionId);
+    if (!section) throw new NotFoundException("Section not found");
+    if (!isRegeneratable(section.type)) {
+      throw new BadRequestException(`Section ${section.type} belum bisa dibuat ulang`);
+    }
+
+    const nav = spec.sections.find((s) => s.type === "navbar");
+    const hero = spec.sections.find((s) => s.type.startsWith("hero-"));
+    const brand = nav && nav.type === "navbar" ? nav.content.brand : spec.name;
+    const description = (hero?.content as { description?: string } | undefined)?.description ?? spec.name;
+
+    let copy: Record<string, unknown>;
+    try {
+      const { system, user } = buildSectionPrompt(section, { brand, description });
+      const reply = await this.usage.complete(userId, "design.section", {
+        system,
+        user,
+        maxTokens: 900,
+        timeoutMs: Number(process.env.AI_REQUEST_TIMEOUT_MS ?? 60000),
+        json: true,
+      });
+      copy = sectionCopySchema(section.type).parse(extractJsonObject(reply.text)) as Record<string, unknown>;
+    } catch (err) {
+      this.log.warn(`Section regeneration failed: ${(err as Error).message}`);
+      throw new ServiceUnavailableException(
+        "AI belum bisa menulis ulang section ini. Versi sekarang tetap dipakai, coba lagi sebentar.",
+      );
+    }
+
+    let next: DesignSpec;
+    try {
+      next = applyDesignOp(spec, {
+        op: "replace",
+        sectionId,
+        section: applySectionCopy(section, copy),
+      });
+    } catch (err) {
+      this.log.warn(`Regenerated section rejected by schema: ${(err as Error).message}`);
+      throw new ServiceUnavailableException("Teks dari AI tidak sesuai format. Versi sekarang tetap dipakai, coba lagi.");
+    }
+
+    const last = await this.prisma.aiArtifact.findFirst({
+      where: { projectId, kind: current.kind },
+      orderBy: { version: "desc" },
+      select: { version: true },
+    });
+    const row = await this.prisma.aiArtifact.create({
+      data: {
+        projectId,
+        kind: current.kind,
+        version: (last?.version ?? 0) + 1,
+        content: next as unknown as Prisma.InputJsonValue,
+      },
+    });
+    return { id: row.id, version: row.version, direction: next.direction, spec: next, source: "ai" as const };
   }
 }

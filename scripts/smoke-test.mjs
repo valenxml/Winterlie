@@ -36,6 +36,12 @@ async function step(name, fn) {
   }
 }
 
+async function registerWithOtp(address, pwd, name) {
+  const req = await call("POST", "/auth/register/request", { email: address, password: pwd, name });
+  if (!req.devCode) throw new Error("devCode tidak ada. Pastikan AUTH_DEV_BYPASS=true dan NODE_ENV bukan production");
+  return call("POST", "/auth/register/verify", { email: address, code: req.devCode });
+}
+
 let projectId, directions, artifactId, sectionId, versionsBefore;
 
 await step("API health", async () => {
@@ -43,8 +49,8 @@ await step("API health", async () => {
   if (h.status !== "ok") throw new Error("status is not ok");
 });
 
-await step("register a new account", async () => {
-  const u = await call("POST", "/auth/register", { email, password, name: "Smoke" });
+await step("register with email code (request, then verify)", async () => {
+  const u = await registerWithOtp(email, password, "Smoke");
   if (!u.id) throw new Error("no user id");
   return u.email;
 });
@@ -105,7 +111,7 @@ await step("another user cannot read this project", async () => {
   const otherEmail = `other-${Date.now()}@test.local`;
   await call("POST", "/auth/logout");
   cookie = "";
-  await call("POST", "/auth/register", { email: otherEmail, password });
+  await registerWithOtp(otherEmail, password, "Lain");
   try {
     await call("GET", `/projects/${projectId}/designs`);
   } catch (err) {

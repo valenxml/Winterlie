@@ -6,3 +6,6 @@ export * from "./operations.js";
 export * from "./templates.js";
 export * from "./apply-op.js";
 export * from "./copy.js";
+export * from "./section-regen.js";
+export * from "./compose.js";
+export * from "./archetypes.js";

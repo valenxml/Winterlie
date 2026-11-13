@@ -8,6 +8,9 @@ import { DesignsService } from "./designs/designs.service.js";
 import { AiController } from "./ai/ai.controller.js";
 import { AuthController } from "./auth/auth.controller.js";
 import { AuthService } from "./auth/auth.service.js";
+import { CreditsController } from "./credits/credits.controller.js";
+import { CreditsService } from "./credits/credits.service.js";
+import { AiUsageService } from "./ai/ai-usage.service.js";
 
 @Controller("health")
 class HealthController {
@@ -18,12 +21,14 @@ class HealthController {
 }
 
 @Module({
-  controllers: [HealthController, ProjectsController, DesignsController, AiController, AuthController],
+  controllers: [HealthController, ProjectsController, DesignsController, AiController, AuthController, CreditsController],
   providers: [
     PrismaService,
     ProjectsService,
     DesignsService,
     AuthService,
+    CreditsService,
+    AiUsageService,
     { provide: AI_PROVIDER, useFactory: () => createAIProvider() },
   ],
 })

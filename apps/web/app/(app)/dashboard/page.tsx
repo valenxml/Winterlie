@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { API_URL } from "@/lib/api";
 import { Icon } from "@/components/icons";
+import { CreditsCard } from "@/components/credits-card";
+import { AiUsageCard } from "@/components/ai-usage-card";
 
 async function apiOnline(): Promise<boolean> {
   try {
@@ -49,6 +51,8 @@ export default async function DashboardPage() {
           <div><h3>Periksa hasil AI</h3><p>Temukan kesalahan sebelum dipakai.</p></div>
         </Link>
       </div>
+      <CreditsCard />
+      <AiUsageCard />
       {!online && (
         <p className="muted">
           Jalankan <code>pnpm --filter @workshop/api dev</code>, lalu muat ulang halaman ini.

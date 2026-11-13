@@ -24,13 +24,20 @@ const LABEL: Record<string, string> = {
 /** Sections whose text can be edited in this version of the editor. */
 const EDITABLE = new Set(["navbar", "hero-editorial", "hero-split", "hero-centered", "cta-banner"]);
 
+/** Section types the API can rewrite with AI. Keep in sync with REGENERATABLE_TYPES in design-schema. */
+const REGENERATABLE = new Set([
+  "hero-editorial", "hero-split", "hero-centered", "cta-banner", "feature-grid", "feature-alternating", "faq",
+  "stats-row", "pricing", "testimonials", "product-grid",
+]);
+
 interface Props {
   spec: DesignSpec;
   busy: boolean;
   onOp: (op: DesignOpPayload) => Promise<void>;
+  onRegenerate?: (sectionId: string) => Promise<void>;
 }
 
-export function SectionEditor({ spec, busy, onOp }: Props) {
+export function SectionEditor({ spec, busy, onOp, onRegenerate }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const active = spec.sections.find((s) => s.id === activeId) ?? null;
@@ -61,6 +68,12 @@ export function SectionEditor({ spec, busy, onOp }: Props) {
                 {!editable && <span className="muted" style={{ fontSize: 11, marginLeft: 6 }}>tidak bisa diedit</span>}
               </button>
               <div className="row" style={{ gap: 4 }}>
+                {onRegenerate && REGENERATABLE.has(s.type) && (
+                  <button type="button" className="btn btn-ghost btn-sm" disabled={busy}
+                    onClick={() => onRegenerate(s.id)} title="Tulis ulang teks section ini dengan AI">
+                    Buat ulang
+                  </button>
+                )}
                 <button type="button" className="icon-btn" aria-label="Naik" disabled={busy || i === 0}
                   onClick={() => onOp({ op: "move", sectionId: s.id, toIndex: i - 1 })}>↑</button>
                 <button type="button" className="icon-btn" aria-label="Turun" disabled={busy || i === spec.sections.length - 1}

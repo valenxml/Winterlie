@@ -33,6 +33,8 @@ export default function LandingPage() {
           <a href="#tools">Tools</a>
           <a href="#features">Fitur</a>
           <a href="#palette">Palet</a>
+          <a href="#pilih">Jenis website</a>
+          <Link href="/examples">Contoh</Link>
         </div>
         <Link href="/dashboard" className="btn btn-dark">Buka workspace</Link>
       </nav>
@@ -62,25 +64,39 @@ export default function LandingPage() {
       <section className="section" id="how">
         <div className="section-head">
           <div className="eyebrow">Cara kerja</div>
-          <h2>Tiga langkah, dengan kontrol di setiap langkah.</h2>
-          <p>Anda tidak menerima satu hasil lalu menebak-nebak. Setiap keputusan bisa diubah.</p>
+          <h2>Dari satu ide ke arah desain, dalam tiga langkah.</h2>
+          <p>Anda tetap memegang kendali di setiap langkah. Tidak ada hasil yang dikunci.</p>
         </div>
-        <div className="steps">
-          <div className="step">
-            <div className="icon-badge"><Icon name="pen" /></div>
-            <h3>Tulis brief</h3>
-            <p>Jelaskan bisnis, audiens, dan tujuan website. Semakin spesifik, semakin tepat hasilnya.</p>
+        <div className="flow">
+          <div className="flow-line" aria-hidden="true" />
+          <div className="flow-step">
+            <div className="flow-num">1</div>
+            <div className="flow-card">
+              <div className="icon-badge"><Icon name="pen" /></div>
+              <h3>Tulis ide</h3>
+              <p>Jelaskan bisnis atau produk Anda, dan pilih jenis website: toko, game, streaming, atau landing page.</p>
+            </div>
           </div>
-          <div className="step">
-            <div className="icon-badge"><Icon name="layers" /></div>
-            <h3>Pilih arah desain</h3>
-            <p>Bandingkan tiga arah yang berbeda dalam tata letak, tipografi, dan kepadatan, lalu pilih satu.</p>
+          <div className="flow-step">
+            <div className="flow-num">2</div>
+            <div className="flow-card">
+              <div className="icon-badge"><Icon name="layers" /></div>
+              <h3>AI menyusun tiga arah</h3>
+              <p>Tiga arah desain yang berbeda struktur, warna, dan font. Bandingkan, lalu pilih satu.</p>
+            </div>
           </div>
-          <div className="step">
-            <div className="icon-badge"><Icon name="edit" /></div>
-            <h3>Edit per section</h3>
-            <p>Ganti satu section, pindahkan urutan, atau ubah warna dan font. Bagian lain tetap sama.</p>
+          <div className="flow-step">
+            <div className="flow-num">3</div>
+            <div className="flow-card">
+              <div className="icon-badge"><Icon name="edit" /></div>
+              <h3>Edit per section</h3>
+              <p>Ubah teks, urutan, atau tulis ulang satu section. Setiap perubahan tersimpan sebagai versi baru.</p>
+            </div>
           </div>
+        </div>
+        <div className="cta-row" style={{ marginTop: 28 }}>
+          <Link href="/examples/toko-online" className="btn">Coba dulu, tanpa daftar <Icon name="arrow" size={16} /></Link>
+          <Link href="/tools/mockup-maker" className="btn btn-ghost">Mulai dengan ide Anda</Link>
         </div>
       </section>
 
@@ -146,6 +162,28 @@ export default function LandingPage() {
           <div className="cta-row" style={{ marginTop: 20 }}>
             <Link href="/tools/color-palette" className="btn">Coba dengan warna brand Anda <Icon name="arrow" size={16} /></Link>
           </div>
+        </div>
+      </section>
+
+      <section className="section" id="pilih">
+        <div className="section-head">
+          <div className="eyebrow">Mulai dari sini</div>
+          <h2>Mau bikin website apa?</h2>
+          <p>Pilih jenisnya dulu. Struktur halaman, warna, dan teksnya akan menyesuaikan.</p>
+        </div>
+        <div className="site-type-grid">
+          {[
+            { id: "ecommerce", label: "Toko online", hint: "Jualan produk dengan katalog dan keranjang", icon: "🛒" },
+            { id: "game", label: "Landing game", hint: "Promosi game, peringkat, dan komunitas", icon: "♟" },
+            { id: "streaming", label: "Streaming", hint: "Film, serial, atau musik dengan paket langganan", icon: "▶" },
+            { id: "landing", label: "Landing page", hint: "Profil usaha atau jasa dengan ajakan", icon: "◻" },
+          ].map((o) => (
+            <Link key={o.id} href={`/tools/mockup-maker?type=${o.id}`} className="site-type">
+              <span className="site-type-icon">{o.icon}</span>
+              <span style={{ fontWeight: 600, fontSize: 14 }}>{o.label}</span>
+              <span className="muted" style={{ fontSize: 12 }}>{o.hint}</span>
+            </Link>
+          ))}
         </div>
       </section>
 

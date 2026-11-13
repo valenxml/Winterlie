@@ -1,7 +1,6 @@
-import { Controller, Inject, Post, ServiceUnavailableException } from "@nestjs/common";
-import type { AIProvider } from "./provider.js";
+import { Controller, Get, Post, ServiceUnavailableException } from "@nestjs/common";
 import { AIProviderError } from "./provider.js";
-import { AI_PROVIDER } from "./nest.js";
+import { AiUsageService } from "./ai-usage.service.js";
 import { CurrentUser } from "../common/current-user.js";
 
 /**
@@ -10,12 +9,12 @@ import { CurrentUser } from "../common/current-user.js";
  */
 @Controller("ai")
 export class AiController {
-  constructor(@Inject(AI_PROVIDER) private readonly ai: AIProvider) {}
+  constructor(private readonly usage: AiUsageService) {}
 
   @Post("test")
-  async test(@CurrentUser() _userId: string) {
+  async test(@CurrentUser() userId: string) {
     try {
-      const r = await this.ai.complete({
+      const r = await this.usage.complete(userId, "ai.test", {
         system: "Kamu adalah asisten singkat. Jawab dengan satu kalimat dalam Bahasa Indonesia.",
         user: "Sebutkan satu hal yang membuat website mudah dipakai.",
         maxTokens: 80,
@@ -28,5 +27,10 @@ export class AiController {
       }
       throw err;
     }
+  }
+
+  @Get("usage")
+  usageSummary(@CurrentUser() userId: string) {
+    return this.usage.summary(userId, 30);
   }
 }

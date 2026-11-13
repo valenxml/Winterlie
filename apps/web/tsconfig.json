@@ -25,9 +25,9 @@
         "./*"
       ]
     },
+    "resolveJsonModule": true,
     "allowJs": true,
-    "esModuleInterop": true,
-    "resolveJsonModule": true
+    "esModuleInterop": true
   },
   "include": [
     "next-env.d.ts",

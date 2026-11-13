@@ -1,0 +1,13 @@
+
+> @workshop/api@0.1.0 build C:\Users\smkn7\Documents\valen html\ai-workshop\apps\api
+> tsc -p tsconfig.json
+
+src/auth/auth.controller.ts(4,39): error TS2305: Module '"@workshop/validators"' has no exported member 'verifyOtpSchema'.
+src/auth/auth.service.ts(31,36): error TS2339: Property 'emailOtp' does not exist on type 'PrismaService'.
+src/auth/auth.service.ts(45,23): error TS2339: Property 'emailOtp' does not exist on type 'PrismaService'.
+src/auth/auth.service.ts(68,35): error TS2339: Property 'emailOtp' does not exist on type 'PrismaService'.
+src/auth/auth.service.ts(79,25): error TS2339: Property 'emailOtp' does not exist on type 'PrismaService'.
+src/auth/auth.service.ts(84,40): error TS2339: Property 'emailOtp' does not exist on type 'PrismaService'.
+C:\Users\smkn7\Documents\valen html\ai-workshop\apps\api:
+ ERR_PNPM_RECURSIVE_RUN_FIRST_FAIL  @workshop/api@0.1.0 build: `tsc -p tsconfig.json`
+Exit status 2

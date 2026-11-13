@@ -8,7 +8,7 @@ const section = <T extends string, C extends z.ZodTypeAny, S extends z.ZodTypeAn
 ) => z.object({ id: sectionIdSchema, type: z.literal(type), content, settings });
 
 /** Visual treatment for the hero: a device frame, floating cards, or a soft gradient. */
-export const HERO_VISUALS = ["device", "cards", "gradient"] as const;
+export const HERO_VISUALS = ["device", "cards", "gradient", "pattern"] as const;
 
 const heroContent = z.object({
   eyebrow: safeText(40).optional(),
@@ -162,10 +162,23 @@ export const dashboardTableSection = section(
   z.object({ striped: z.boolean(), density: z.enum(["compact", "comfortable"]) }),
 );
 
+export const productGridSection = section(
+  "product-grid",
+  z.object({
+    heading: safeText(100),
+    intro: safeText(240).optional(),
+    items: z
+      .array(z.object({ title: safeText(60), price: safeText(24), note: safeText(80).optional(), image: imageRefSchema }))
+      .min(2)
+      .max(8),
+  }),
+  z.object({ columns: z.union([z.literal(2), z.literal(3), z.literal(4)]) }),
+);
+
 export const sectionSchema = z.discriminatedUnion("type", [
   navbarSection, heroEditorialSection, heroSplitSection, heroCenteredSection,
   featureGridSection, featureAlternatingSection, statsRowSection, testimonialsSection,
-  pricingSection, faqSection, ctaBannerSection, footerSection,
+  pricingSection, faqSection, ctaBannerSection, footerSection, productGridSection,
   dashboardSidebarSection, dashboardKpisSection, dashboardTableSection,
 ]);
 export type Section = z.infer<typeof sectionSchema>;
@@ -173,7 +186,7 @@ export type SectionType = Section["type"];
 
 export const LANDING_SECTION_TYPES = [
   "navbar", "hero-editorial", "hero-split", "hero-centered", "feature-grid",
-  "feature-alternating", "stats-row", "testimonials", "pricing", "faq", "cta-banner", "footer",
+  "feature-alternating", "stats-row", "testimonials", "pricing", "faq", "cta-banner", "footer", "product-grid",
 ] as const satisfies readonly SectionType[];
 
 export const DASHBOARD_SECTION_TYPES = [

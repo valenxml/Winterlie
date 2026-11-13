@@ -31,6 +31,8 @@ export const designBriefSchema = z.object({
   requiredSections: z.array(z.string().trim().min(1).max(60)).max(15).default([]),
   referenceUrls: z.array(httpUrl).max(5).default([]),
   constraints: z.string().trim().max(600).optional(),
+  /** Website type chosen by the client. "auto" lets the brief decide. */
+  siteType: z.enum(["auto", "ecommerce", "game", "streaming", "landing"]).default("auto"),
 });
 export type DesignBrief = z.infer<typeof designBriefSchema>;
 export * from "./auth.js";

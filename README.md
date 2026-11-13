@@ -82,6 +82,16 @@ Docker tidak diperlukan.
    pnpm test
    ```
 
+## Database online (Neon atau Supabase)
+
+Aplikasi memakai dua koneksi:
+- `DATABASE_URL`: untuk aplikasi. Pakai versi **pooled** (Neon) atau **transaction pooler** (Supabase).
+- `DIRECT_URL`: untuk migrasi. Pakai koneksi **langsung**, tanpa pooler.
+
+Isi keduanya di `.env` root **dan** `packages\database\.env`. Kalau `DIRECT_URL` tidak ada, `prisma generate` dan `migrate` akan gagal dengan "Environment variable not found: DIRECT_URL". Contoh untuk Neon dan Supabase ada di `.env.example`.
+
+Untuk pemindahan dari PostgreSQL lokal, jalankan `scripts\update.bat` setelah mengisi kedua variabel. Migrasi yang sudah tercatat tidak akan dijalankan ulang.
+
 ## Update ke versi baru
 
 Setelah mengambil kode terbaru (dari `git pull` atau ekstrak ZIP baru), jalankan dari root proyek:

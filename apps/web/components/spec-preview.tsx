@@ -119,7 +119,19 @@ function CardsArt({ spec, height }: { spec: DesignSpec; height: number }) {
   );
 }
 
+/** Checkerboard panel for game, board, or technical briefs. Built from palette colors only. */
+function PatternArt({ spec, height }: { spec: DesignSpec; height: number }) {
+  const c = spec.tokens.colors;
+  return (
+    <div style={{
+      height, borderRadius: 18, border: `1px solid ${c.border}`, overflow: "hidden",
+      background: `repeating-conic-gradient(${c.primary}26 0% 25%, ${c.surface} 0% 50%) 50% / ${Math.round(height / 4)}px ${Math.round(height / 4)}px`,
+    }} />
+  );
+}
+
 function HeroArt({ visual, spec, height }: { visual?: string; spec: DesignSpec; height: number }) {
+  if (visual === "pattern") return <PatternArt spec={spec} height={height} />;
   if (visual === "device") return <DeviceArt spec={spec} height={height} />;
   if (visual === "cards") return <CardsArt spec={spec} height={height} />;
   return <GradientArt spec={spec} height={height} />;
@@ -253,6 +265,60 @@ function renderSection(s: Section, spec: DesignSpec): ReactNode {
         <div style={{ padding: "18px 22px", display: "flex", justifyContent: "space-between", fontSize: 12, color: c.muted }}>
           <span style={{ fontWeight: 600, color: c.text }}>{s.content.brand}</span>
           <span>{s.content.legal}</span>
+        </div>
+      );
+    case "product-grid":
+      return (
+        <div style={pad(rule)}>
+          <div style={{ ...headingStyle(spec), fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 14 }}>{s.content.heading}</div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${s.settings.columns}, 1fr)`, gap: 12 }}>
+            {s.content.items.map((it) => (
+              <div key={it.title + it.price} style={{ background: c.surface, border: `1px solid ${c.border}`, borderRadius: 14, overflow: "hidden" }}>
+                <div style={{ height: 90, background: `linear-gradient(135deg, ${c.primary}22, ${c.accent}33)` }} />
+                <div style={{ padding: 12 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{it.title}</div>
+                  <div style={{ color: c.primary, fontWeight: 700, fontSize: 13, marginTop: 4 }}>{it.price}</div>
+                  {it.note && <div style={{ color: c.muted, fontSize: 11, marginTop: 2 }}>{it.note}</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case "pricing":
+      return (
+        <div style={pad(rule)}>
+          <div style={{ ...headingStyle(spec), fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 14 }}>{s.content.heading}</div>
+          <div style={{ display: "grid", gridTemplateColumns: `repeat(${s.content.plans.length}, 1fr)`, gap: 12 }}>
+            {s.content.plans.map((p) => (
+              <div key={p.name} style={{
+                background: p.highlighted ? c.primary : c.surface, color: p.highlighted ? "#fff" : c.text,
+                border: p.highlighted ? "none" : `1px solid ${c.border}`, borderRadius: 14, padding: 16,
+              }}>
+                <div style={{ fontWeight: 600, fontSize: 13 }}>{p.name}</div>
+                <div style={{ fontWeight: 700, fontSize: 20, marginTop: 6 }}>
+                  {p.price}{p.period && <span style={{ fontSize: 12, fontWeight: 500, opacity: 0.8 }}> {p.period}</span>}
+                </div>
+                <ul style={{ margin: "10px 0 0", paddingLeft: 16, fontSize: 12, lineHeight: 1.7, opacity: 0.9 }}>
+                  {p.features.map((f) => <li key={f}>{f}</li>)}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    case "testimonials":
+      return (
+        <div style={pad(rule)}>
+          <div style={{ ...headingStyle(spec), fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em", marginBottom: 14 }}>{s.content.heading}</div>
+          <div style={{ display: "grid", gridTemplateColumns: s.settings.layout === "columns" ? `repeat(${Math.min(s.content.items.length, 3)}, 1fr)` : "1fr", gap: 12 }}>
+            {s.content.items.map((it) => (
+              <figure key={it.quote} style={{ margin: 0, background: c.surface, border: `1px solid ${c.border}`, borderRadius: 14, padding: 16 }}>
+                <blockquote style={{ margin: 0, fontSize: 13, lineHeight: 1.6 }}>&ldquo;{it.quote}&rdquo;</blockquote>
+                <figcaption style={{ marginTop: 10, fontSize: 12, color: c.muted }}><b style={{ color: c.text }}>{it.name}</b> · {it.role}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       );
     default:
