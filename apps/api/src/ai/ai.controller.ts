@@ -1,7 +1,8 @@
-import { Controller, Get, Post, ServiceUnavailableException } from "@nestjs/common";
+import { Controller, Get, NotFoundException, Post, ServiceUnavailableException } from "@nestjs/common";
 import { AIProviderError } from "./provider.js";
 import { AiUsageService } from "./ai-usage.service.js";
 import { CurrentUser } from "../common/current-user.js";
+import { LimitsService } from "../common/limits.service.js";
 
 /**
  * Connection check for the configured AI provider. Requires a signed-in user so the
@@ -9,10 +10,16 @@ import { CurrentUser } from "../common/current-user.js";
  */
 @Controller("ai")
 export class AiController {
-  constructor(private readonly usage: AiUsageService) {}
+  constructor(
+    private readonly usage: AiUsageService,
+    private readonly limits: LimitsService,
+  ) {}
 
   @Post("test")
   async test(@CurrentUser() userId: string) {
+    // A paid model call with no charge. Never available in production.
+    if (process.env.NODE_ENV === "production") throw new NotFoundException();
+    this.limits.enforce("aiUser", userId);
     try {
       const r = await this.usage.complete(userId, "ai.test", {
         system: "Kamu adalah asisten singkat. Jawab dengan satu kalimat dalam Bahasa Indonesia.",

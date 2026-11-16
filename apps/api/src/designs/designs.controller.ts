@@ -4,10 +4,14 @@ import { designBriefSchema } from "@workshop/validators";
 import { CurrentUser } from "../common/current-user.js";
 import { parseBody } from "../common/parse.js";
 import { DesignsService } from "./designs.service.js";
+import { LimitsService } from "../common/limits.service.js";
 
 @Controller("projects/:projectId/designs")
 export class DesignsController {
-  constructor(private readonly designs: DesignsService) {}
+  constructor(
+    private readonly designs: DesignsService,
+    private readonly limits: LimitsService,
+  ) {}
 
   @Get()
   list(@CurrentUser() userId: string, @Param("projectId") projectId: string) {
@@ -16,6 +20,7 @@ export class DesignsController {
 
   @Post("generate")
   generate(@CurrentUser() userId: string, @Param("projectId") projectId: string, @Body() body: unknown) {
+    this.limits.enforce("aiUser", userId);
     return this.designs.generate(userId, projectId, parseBody(designBriefSchema, body));
   }
 
@@ -45,6 +50,7 @@ export class DesignsController {
     @Param("artifactId") artifactId: string,
     @Param("sectionId") sectionId: string,
   ) {
+    this.limits.enforce("aiUser", userId);
     return this.designs.regenerateSection(userId, projectId, artifactId, sectionId);
   }
 }

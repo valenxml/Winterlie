@@ -1,6 +1,7 @@
-import { Body, Controller, Get, HttpCode, Post, Query, Res, ServiceUnavailableException } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res, ServiceUnavailableException } from "@nestjs/common";
 import { buildAuthUrl, exchangeCode, signState, validateClaims, verifyState, type GoogleConfig } from "./google.js";
-import type { Response } from "express";
+import type { Request, Response } from "express";
+import { LimitsService } from "../common/limits.service.js";
 import { loginSchema, registerSchema, verifyOtpSchema } from "@workshop/validators";
 import { CurrentUser } from "../common/current-user.js";
 import { parseBody } from "../common/parse.js";
@@ -26,19 +27,24 @@ function setSessionCookie(res: Response, userId: string): void {
 
 @Controller("auth")
 export class AuthController {
-  constructor(private readonly auth: AuthService) {}
+  constructor(
+    private readonly auth: AuthService,
+    private readonly limits: LimitsService,
+  ) {}
 
   /** Step 1: send a verification code to the email. No account is created yet. */
   @Post("register/request")
   @HttpCode(200)
-  requestRegister(@Body() body: unknown) {
+  requestRegister(@Req() req: Request, @Body() body: unknown) {
+    this.limits.enforce("otpIp", req.ip ?? "unknown");
     return this.auth.requestRegisterOtp(parseBody(registerSchema, body));
   }
 
   /** Step 2: confirm the code. The account is created here and the session is set. */
   @Post("register/verify")
   @HttpCode(200)
-  async verifyRegister(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
+  async verifyRegister(@Req() req: Request, @Body() body: unknown, @Res({ passthrough: true }) res: Response) {
+    this.limits.enforce("authIp", req.ip ?? "unknown");
     const input = parseBody(verifyOtpSchema, body);
     const user = await this.auth.verifyRegisterOtp(input.email, input.code);
     setSessionCookie(res, user.id);
@@ -47,7 +53,8 @@ export class AuthController {
 
   @Post("login")
   @HttpCode(200)
-  async login(@Body() body: unknown, @Res({ passthrough: true }) res: Response) {
+  async login(@Req() req: Request, @Body() body: unknown, @Res({ passthrough: true }) res: Response) {
+    this.limits.enforce("authIp", req.ip ?? "unknown");
     const user = await this.auth.login(parseBody(loginSchema, body));
     setSessionCookie(res, user.id);
     return user;

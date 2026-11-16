@@ -11,6 +11,7 @@ import { AuthService } from "./auth/auth.service.js";
 import { CreditsController } from "./credits/credits.controller.js";
 import { CreditsService } from "./credits/credits.service.js";
 import { AiUsageService } from "./ai/ai-usage.service.js";
+import { LimitsService } from "./common/limits.service.js";
 
 @Controller("health")
 class HealthController {
@@ -29,6 +30,7 @@ class HealthController {
     AuthService,
     CreditsService,
     AiUsageService,
+    LimitsService,
     { provide: AI_PROVIDER, useFactory: () => createAIProvider() },
   ],
 })

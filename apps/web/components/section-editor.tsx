@@ -35,9 +35,12 @@ interface Props {
   busy: boolean;
   onOp: (op: DesignOpPayload) => Promise<void>;
   onRegenerate?: (sectionId: string) => Promise<void>;
+  /** False when the user has no credits. Edits stay free; only AI rewrites are blocked. */
+  canRegenerate?: boolean;
+  regenerateHint?: string;
 }
 
-export function SectionEditor({ spec, busy, onOp, onRegenerate }: Props) {
+export function SectionEditor({ spec, busy, onOp, onRegenerate, canRegenerate = true, regenerateHint }: Props) {
   const [activeId, setActiveId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const active = spec.sections.find((s) => s.id === activeId) ?? null;
@@ -69,8 +72,9 @@ export function SectionEditor({ spec, busy, onOp, onRegenerate }: Props) {
               </button>
               <div className="row" style={{ gap: 4 }}>
                 {onRegenerate && REGENERATABLE.has(s.type) && (
-                  <button type="button" className="btn btn-ghost btn-sm" disabled={busy}
-                    onClick={() => onRegenerate(s.id)} title="Tulis ulang teks section ini dengan AI">
+                  <button type="button" className="btn btn-ghost btn-sm" disabled={busy || !canRegenerate}
+                    onClick={() => onRegenerate(s.id)}
+                    title={canRegenerate ? "Tulis ulang teks section ini dengan AI (1 credit)" : regenerateHint}>
                     Buat ulang
                   </button>
                 )}

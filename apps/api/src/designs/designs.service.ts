@@ -1,5 +1,6 @@
 import {
-  BadRequestException, Inject, Injectable, Logger, NotFoundException, ServiceUnavailableException,
+  BadRequestException, HttpException, HttpStatus, Inject, Injectable, Logger, NotFoundException,
+  ServiceUnavailableException,
 } from "@nestjs/common";
 import { ZodError } from "zod";
 import type { Prisma } from "@prisma/client";
@@ -34,6 +35,7 @@ export interface SavedDirection {
 @Injectable()
 export class DesignsService {
   private readonly log = new Logger(DesignsService.name);
+  private readonly inflight = new Set<string>();
 
   constructor(
     private readonly prisma: PrismaService,
@@ -45,13 +47,22 @@ export class DesignsService {
 
   /** Charges credits, runs the action, and refunds the charge if the action throws. */
   private async paid<T>(userId: string, cost: number, action: () => Promise<T>): Promise<T> {
-    const runKey = randomUUID();
-    await this.credits.charge(userId, cost, `run:${runKey}`);
+    // One paid action per user at a time. Parallel requests cannot race the balance.
+    if (this.inflight.has(userId)) {
+      throw new HttpException({ message: "Masih ada proses yang berjalan. Tunggu sebentar." }, HttpStatus.TOO_MANY_REQUESTS);
+    }
+    this.inflight.add(userId);
     try {
-      return await action();
-    } catch (err) {
-      await this.credits.refund(userId, cost, `refund:${runKey}`);
-      throw err;
+      const runKey = randomUUID();
+      await this.credits.charge(userId, cost, `run:${runKey}`);
+      try {
+        return await action();
+      } catch (err) {
+        await this.credits.refund(userId, cost, `refund:${runKey}`);
+        throw err;
+      }
+    } finally {
+      this.inflight.delete(userId);
     }
   }
 

@@ -28,6 +28,16 @@ const MIN_DESCRIPTION = 20;
 export function MockupMakerView() {
   const [projects, setProjects] = useState<Project[] | null>(null);
   const [siteType, setSiteType] = useState<SiteTypeId>("auto");
+  const [balance, setBalance] = useState<number | null>(null);
+
+  async function refreshBalance() {
+    try {
+      const r = await api<{ balance: number }>("/credits/balance");
+      setBalance(r.balance);
+    } catch {
+      setBalance(null);
+    }
+  }
   const [projectId, setProjectId] = useState("");
   const [brand, setBrand] = useState("");
   const [description, setDescription] = useState("");
@@ -38,6 +48,10 @@ export function MockupMakerView() {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [versions, setVersions] = useState<{ id: string; version: number; createdAt: string; spec: DesignSpec }[]>([]);
+
+  useEffect(() => {
+    void refreshBalance();
+  }, []);
 
   useEffect(() => {
     const fromLink = new URLSearchParams(window.location.search).get("type");
@@ -76,6 +90,7 @@ export function MockupMakerView() {
       });
       setDirections(result);
       setSelected(result[0]?.id ?? null);
+      void refreshBalance();
     } catch (err) {
       if (err instanceof ApiError && err.status === 402) {
         setError("Credit kamu habis. Klaim credit harian di Dashboard, atau coba lagi besok.");
@@ -120,6 +135,7 @@ export function MockupMakerView() {
       );
       setDirections((prev) => prev.map((d) => (d.direction === next.direction ? next : d)));
       setSelected(next.id);
+      void refreshBalance();
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Gagal membuat ulang section");
     } finally {
@@ -158,7 +174,9 @@ export function MockupMakerView() {
     );
   }
 
-  const canSubmit = !busy && projectId && description.trim().length >= MIN_DESCRIPTION;
+  const noCredit = balance !== null && balance < 1;
+  const canRegenerate = !noCredit && !saving;
+  const canSubmit = !busy && projectId && description.trim().length >= MIN_DESCRIPTION && !noCredit;
 
   return (
     <>
@@ -190,11 +208,23 @@ export function MockupMakerView() {
         <div className="row" style={{ justifyContent: "space-between" }}>
           <span className="muted" style={{ fontSize: 13 }}>Membuat tiga arah yang berbeda dari brief Anda.</span>
           <div className="row" style={{ gap: 10 }}>
-            <span className="muted" style={{ fontSize: 12 }}>Biaya: 1 credit</span>
+            <span className="muted" style={{ fontSize: 12 }}>
+              Biaya: 1 credit{balance !== null && <> · Saldo: <b style={{ color: "var(--text)" }}>{balance}</b></>}
+            </span>
             <button className="btn" type="submit" disabled={!canSubmit}>{busy ? "Membuat..." : "Buat 3 arah desain →"}</button>
           </div>
         </div>
       </form>
+
+      {noCredit && (
+        <div className="card" style={{ borderColor: "#f1c4c0", background: "#fff7f6", marginTop: 16 }}>
+          <strong style={{ color: "var(--danger)" }}>Credit kamu habis.</strong>
+          <p className="muted" style={{ margin: "4px 0 0" }}>
+            Generate dan buat ulang section membutuhkan credit. Klaim credit harian di{" "}
+            <Link href="/dashboard" style={{ color: "var(--accent)", fontWeight: 600 }}>Dashboard</Link>, atau coba lagi besok.
+          </p>
+        </div>
+      )}
 
       {error && <p className="error">{error}</p>}
 
@@ -235,7 +265,14 @@ export function MockupMakerView() {
             </div>
             {editing && (
               <div className="card" style={{ background: "var(--bg)", boxShadow: "none" }}>
-                <SectionEditor spec={current.spec} busy={saving} onOp={applyOp} onRegenerate={regenerate} />
+                <SectionEditor
+                  spec={current.spec}
+                  busy={saving}
+                  onOp={applyOp}
+                  onRegenerate={regenerate}
+                  canRegenerate={canRegenerate}
+                  regenerateHint={noCredit ? "Credit habis. Klaim credit harian dulu." : undefined}
+                />
                 {versions.length > 0 && (
                   <div style={{ marginTop: 16 }}>
                     <div className="muted" style={{ fontSize: 12.5, marginBottom: 8 }}>Riwayat versi</div>
